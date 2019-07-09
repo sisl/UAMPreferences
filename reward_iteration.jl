@@ -5,7 +5,7 @@ reward_iteration.jl
 """
 
 using Mamba
-#using Plots
+using Plots
 using Distributions
 using LinearAlgebra
 using JLD2

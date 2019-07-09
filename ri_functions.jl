@@ -72,8 +72,7 @@ end
 ----------------------------------------------
 Active Query Selection
 ----------------------------------------------
-"""
-"""
+
 function create_query
 	- main function for creating queries
 	INPUTS:
@@ -291,7 +290,7 @@ function obtain_preference
 """
 function obtain_preference(query::Query)
 	# Plot them for the user
-	p = plot_query(query)
+	p = plot_query_speed(query)
 	display(p)
 
 	# Ask the user for their preference
@@ -338,19 +337,73 @@ function plot_query(query)
 	end
 
 	# Create plot objects
-	p₁ = Plots.plot(xlabel="East (m)", ylabel="Altitude (m)", title="Landing 1", legend=false, aspect_ratio=:equal, size=(1200,600), xlims=(miny,maxy+50), ylims=(minz,maxz+10))
+	p₁ = Plots.plot(xlabel="East (m)", ylabel="Altitude (m)", title="Landing 1", legend=false, size=(1200,600), xlims=(miny,maxy+50), ylims=(minz,maxz+10)) #, aspect_ratio=:equal)
 	for i = 1:length(query.τ₁)
 		Plots.plot!(p₁, query.τ₁[i].y, query.τ₁[i].z, linewidth=4)
 		Plots.plot!(p₁, [query.τ₁[i].y[1:20:end]], [query.τ₁[i].z[1:20:end]], seriestype=:scatter, markersize=3)
 	end
 
-	p₂ = Plots.plot(xlabel="East (m)", ylabel="Altitude (m)", title="Landing 2", legend=false, aspect_ratio=:equal, size=(1200,600), xlims=(miny,maxy+50), ylims=(minz,maxz+10))
+	p₂ = Plots.plot(xlabel="East (m)", ylabel="Altitude (m)", title="Landing 2", legend=false, size=(1200,600), xlims=(miny,maxy+50), ylims=(minz,maxz+10)) #, aspect_ratio=:equal)
 	for i = 1:length(query.τ₂)
 		Plots.plot!(p₂, query.τ₂[i].y, query.τ₂[i].z, linewidth=4)
 		Plots.plot!(p₂, [query.τ₂[i].y[1:20:end]], [query.τ₂[i].z[1:20:end]], seriestype=:scatter, markersize=3)
 	end
 
 	p = Plots.plot(p₁, p₂, layout=(2,1))
+
+	return p
+end
+
+"""
+function plot_query_speed
+	- plot query to show to expert with speed on the side using plots.jl
+	INPUTS:
+	- query: query to plot
+	OUTPUTS:
+	- p: the plot object to display
+"""
+function plot_query_speed(query)
+	minz = 0
+
+	miny, maxz, maxy = 0, 0, 0
+	for i = 1:length(query.τ₁)
+		miny = minimum([query.τ₁[i].y; query.τ₂[i].y]) > miny ? minimum([query.τ₁[i].y; query.τ₂[i].y]) : miny
+		maxz = maximum([query.τ₁[i].z; query.τ₂[i].z]) > maxz ? maximum([query.τ₁[i].z; query.τ₂[i].z]) : maxz
+		maxy = maximum([query.τ₁[i].y; query.τ₂[i].y]) > maxy ? maximum([query.τ₁[i].y; query.τ₂[i].y]) : maxy
+	end
+
+	# Create plot objects
+	p₁ = Plots.plot(xlabel="East (m)", ylabel="Altitude (m)", title="Policy 1", legend=false, size=(1200,600), xlims=(miny,maxy+50), ylims=(minz,maxz+10)) #, aspect_ratio=:equal)
+	p₂ = Plots.plot(xlabel="Time (s)", ylabel="Speed (m/s)", title="Policy 1", legend=false)
+	for i = 1:length(query.τ₁)
+		Plots.plot!(p₁, query.τ₁[i].y, query.τ₁[i].z, linewidth=4)
+		Plots.plot!(p₁, [query.τ₁[i].y[1:20:end]], [query.τ₁[i].z[1:20:end]], seriestype=:scatter, markersize=3)
+
+		times = collect(range(0, step=dt_traj, length=length(query.τ₁[i].y)-1))
+		ẏ = [(query.τ₁[i].y[j+1] - query.τ₁[i].y[j])/dt_traj for j=1:length(query.τ₁[i].y)-1]
+		ż = [(query.τ₁[i].z[j+1] - query.τ₁[i].z[j])/dt_traj for j=1:length(query.τ₁[i].z)-1]
+		speeds = [norm([ẏ[j], ż[j]]) for j=1:length(query.τ₁[i].y)-1]
+		speed_zero_ind = findfirst(speeds .== 0)
+		speed_zero_ind == nothing ? speed_zero_ind = length(times) + 2 : nothing
+		Plots.plot!(p₂, times[1:speed_zero_ind-2], speeds[1:speed_zero_ind-2])
+	end
+
+	p₃ = Plots.plot(xlabel="East (m)", ylabel="Altitude (m)", title="Policy 2", legend=false, size=(1200,600), xlims=(miny,maxy+50), ylims=(minz,maxz+10)) #, aspect_ratio=:equal)
+	p₄ = Plots.plot(xlabel="Time (s)", ylabel="Speed (m/s)", title="Policy 2", legend=false)
+	for i = 1:length(query.τ₂)
+		Plots.plot!(p₃, query.τ₂[i].y, query.τ₂[i].z, linewidth=4)
+		Plots.plot!(p₃, [query.τ₂[i].y[1:20:end]], [query.τ₂[i].z[1:20:end]], seriestype=:scatter, markersize=3)
+
+		times = collect(range(0, step=dt_traj, length=length(query.τ₁[i].y)-1))
+		ẏ = [(query.τ₂[i].y[j+1] - query.τ₂[i].y[j])/dt_traj for j=1:length(query.τ₂[i].y)-1]
+		ż = [(query.τ₂[i].z[j+1] - query.τ₂[i].z[j])/dt_traj for j=1:length(query.τ₂[i].z)-1]
+		speeds = [norm([ẏ[j], ż[j]]) for j=1:length(query.τ₂[i].y)-1]
+		speed_zero_ind = findfirst(speeds .== 0)
+		speed_zero_ind == nothing ? speed_zero_ind = length(times) + 2 : nothing
+		Plots.plot!(p₄, times[1:speed_zero_ind-2], speeds[1:speed_zero_ind-2])
+	end
+
+	p = Plots.plot(p₁, p₂, p₃, p₄, layout=(2,2))
 
 	return p
 end

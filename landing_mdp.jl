@@ -225,8 +225,7 @@ end
 ----------------------------------------------
 Solve
 ----------------------------------------------
-"""
-"""
+
 function solve_landing_mdp
     - solves mdp using value iteration from POMDPs.jl
     INPUTS:
@@ -311,8 +310,7 @@ end
 ----------------------------------------------
 Generate trajectory using the policy
 ----------------------------------------------
-"""
-"""
+
 function generate_trajectory
     INPUTS:
     - mdp: mdp to generate trajectories from

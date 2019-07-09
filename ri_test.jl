@@ -157,30 +157,30 @@ end
 
 # @save "mu_sweep_extradata_10005000.jld2" m_mat_tot W_hist
 
-#  num_iter = 80
-#  num_trials = 1
+ num_iter = 80
+ num_trials = 1
 
-#  m_mat = zeros(num_iter+1,num_trials)
-#  W_hist = w_hist = Vector{Weights}()
-#  Query_hist = Vector{Query}()
+ m_mat = zeros(num_iter+1,num_trials)
+ W_hist = w_hist = Vector{Weights}()
+ Query_hist = Vector{Query}()
 
-#  Random.seed!(18)
-#  for i = 1:num_trials
-#  	@eval begin
-#  		w_hist = Vector{Weights}()
-#  		W = zeros(num_features, M)
-#  		prefs = Vector{Preference}()
-#  		w = zeros(num_features)
-#  	end
+ Random.seed!(18)
+ for i = 1:num_trials
+ 	@eval begin
+ 		w_hist = Vector{Weights}()
+ 		W = zeros(num_features, M)
+ 		prefs = Vector{Preference}()
+ 		w = zeros(num_features)
+ 	end
 
-#  	auto_reward_iteration(num_iter)
+ 	auto_reward_iteration(num_iter)
 
-#  	# m, w_mean_hist = post_process_w_hist(w_hist[2:end], w_true)
-#  	m, w_mean_hist = post_process_w_hist(w_hist, w_true)
-#  	m_mat[:,i] = m
+ 	# m, w_mean_hist = post_process_w_hist(w_hist[2:end], w_true)
+ 	m, w_mean_hist = post_process_w_hist(w_hist, w_true)
+ 	m_mat[:,i] = m
 
-#  	println("Iter: $i")
-# end
+ 	println("Iter: $i")
+end
 
 # @save "multiobj_dir_mu500_use.jld2" m_mat W_hist Query_hist
 
