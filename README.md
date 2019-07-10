@@ -12,4 +12,4 @@ Companion code for S. M. Katz, A. LeBihan, and M. J. Kochenderfer, “Learning a
 ### Interactive Version for Jupyter Notebooks (IJulia)
 `interactive_reward_iteration.jl` - Main file for algorithm implementation. Include this file in Jupyter notebook rather than `reward_iteration.jl`.  
 `InteractivePreferences.ipynb` - Example Jupyter notebook for running the interactive version.  
-`support_code` - Code used for plotting. From https://github.com/sisl/algforopt-notebooks.  
+`support_code.jl` - Code used for plotting. From https://github.com/sisl/algforopt-notebooks.  
