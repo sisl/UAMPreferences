@@ -58,7 +58,7 @@ function interactive_reward_iteration()
 			sample_w(M)
 			query = create_query()
 			curr_pref.ψ = get_ψ(query)
-			plot_query_pgf(query)
+			plot_query_speed_pgf(query)
 		elseif update > currupdate
 			currupdate += 1
 			if UserPreference == "Model 1"

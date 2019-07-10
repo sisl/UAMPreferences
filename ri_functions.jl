@@ -110,7 +110,7 @@ function create_query(;verbose=false, multiobj=false, random=false, μ=500.0)
 		query_w = choose_pair(candidates)
 	end
 	println(query_w)
-	init_states = rand.(Uniform.(lb_s₀, ub_s₀), num_trajectories) # array of initial states
+	init_states = rand.(Distributions.Uniform.(lb_s₀, ub_s₀), num_trajectories) # array of initial states
 	###################################################################
 	# Solve mdp and perform rollouts
 	###################################################################
@@ -471,7 +471,7 @@ function plot_query_speed_pgf(query)
 	end
 
 	# Create plot objects
-	ax₁ = Axis(height="20cm", width="20cm", axisEqualImage=true, xmin=ymin, xmax=ymax, ymin=zmin, ymax=zmax)
+	ax₁ = Axis(height="5cm", width="15cm", xmin=ymin, xmax=ymax, ymin=zmin, ymax=zmax)#, axisEqualImage=true)
 	ax₁.xlabel = "East (m)"
 	ax₁.ylabel = "Altitude (m)"
 	ax₁.title = "Policy 1"
@@ -486,10 +486,12 @@ function plot_query_speed_pgf(query)
 		ẏ = [(query.τ₁[i].y[j+1] - query.τ₁[i].y[j])/dt_traj for j=1:length(query.τ₁[i].y)-1]
 		ż = [(query.τ₁[i].z[j+1] - query.τ₁[i].z[j])/dt_traj for j=1:length(query.τ₁[i].z)-1]
 		speeds = [norm([ẏ[j], ż[j]]) for j=1:length(query.τ₁[i].y)-1]
-		push!(ax₁s, Plots.Linear(times, speeds, mark="none"))
+		speed_zero_ind = findfirst(speeds .== 0)
+		speed_zero_ind == nothing ? speed_zero_ind = length(times) + 2 : nothing
+		push!(ax₁s, Plots.Linear(times[1:speed_zero_ind-2], speeds[1:speed_zero_ind-2], mark="none"))
 	end
 
-	ax₂ = Axis(height="20cm", width="20cm", axisEqualImage=true, xmin=ymin, xmax=ymax, ymin=zmin, ymax=zmax)
+	ax₂ = Axis(height="5cm", width="15cm", xmin=ymin, xmax=ymax, ymin=zmin, ymax=zmax)#, axisEqualImage=true)
 	ax₂.xlabel = "East (m)"
 	ax₂.ylabel = "Altitude (m)"
 	ax₂.title = "Policy 2"
@@ -504,10 +506,12 @@ function plot_query_speed_pgf(query)
 		ẏ = [(query.τ₂[i].y[j+1] - query.τ₂[i].y[j])/dt_traj for j=1:length(query.τ₂[i].y)-1]
 		ż = [(query.τ₂[i].z[j+1] - query.τ₂[i].z[j])/dt_traj for j=1:length(query.τ₂[i].z)-1]
 		speeds = [norm([ẏ[j], ż[j]]) for j=1:length(query.τ₂[i].y)-1]
-		push!(ax₂s, Plots.Linear(times, speeds, mark="none"))
+		speed_zero_ind = findfirst(speeds .== 0)
+		speed_zero_ind == nothing ? speed_zero_ind = length(times) + 2 : nothing
+		push!(ax₂s, Plots.Linear(times[1:speed_zero_ind-2], speeds[1:speed_zero_ind-2], mark="none"))
 	end
 
-	g = GroupPlot(2, 2, groupStyle = "vertical sep = 2cm")
+	g = GroupPlot(2, 2, groupStyle = "vertical sep = 2cm, horizontal sep = 2cm")
 	push!(g, ax₁)
 	push!(g, ax₁s)
 	push!(g, ax₂)

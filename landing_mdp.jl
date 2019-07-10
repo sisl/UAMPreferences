@@ -264,7 +264,7 @@ function solve_landing_mdp_sparse(;α=1, β=1, γ=1, landing_reward=10000, verbo
 	if init_util
 		solver = SparseValueIterationSolver(verbose=verbose, init_util=util)
 	else
-		solver = SparseValueIterationSolver(verbose=verbose, init_T=T)
+		solver = SparseValueIterationSolver(verbose=verbose)#, init_T=T)
 	end
 	policy = solve(solver, mdp)
 	return mdp, policy
